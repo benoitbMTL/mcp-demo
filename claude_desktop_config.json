@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "fabriclab-proxy": {
+            "command": "C:\\Users\\Alice\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+            "args": [
+                "C:\\Users\\Alice\\Desktop\\mcp_stdio_proxy.py"
+            ],
+            "env": {
+                "BACKEND_URL": "http://192.168.2.182/mcp"
+            }
+        }
+    }
+}
