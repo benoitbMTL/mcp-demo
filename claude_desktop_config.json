@@ -1,6 +1,6 @@
 {
     "mcpServers": {
-        "fabriclab-proxy": {
+        "MCP-XPERTS": {
             "command": "C:\\Users\\azureuser\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
             "args": [
                 "C:\\Users\\azureuser\\Desktop\\mcp_stdio_proxy.py"

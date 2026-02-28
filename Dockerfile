@@ -14,6 +14,7 @@ RUN apt-get update && \
 # Copy application code
 COPY server.py /app/server.py
 COPY files /app/files
+COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
