@@ -16,14 +16,15 @@ COPY server.py /app/server.py
 COPY files /app/files
 
 # Install Python dependencies
-RUN pip install --no-cache-dir \
-    fastmcp \
-    pypdf \
-    pytz \
-    uvicorn
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Expose MCP port
+# Expose MCP server port
 EXPOSE 7000
 
 # Start MCP server (Streamable HTTP)
 CMD ["python", "server.py"]
+
+
+
+
