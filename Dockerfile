@@ -12,9 +12,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy application code
-COPY server.py /app/server.py
 COPY files /app/files
-COPY requirements.txt .
+COPY server.py /app/server.py
+COPY requirements.txt /app/requirements.txt
+COPY secrets.txt /app/secrets.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \

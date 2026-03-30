@@ -8,7 +8,7 @@ import uvicorn
 from typing import Optional
 
 # Initialize the FastMCP server
-mcp = FastMCP("FabricLab-MCP-Server")
+mcp = FastMCP("XPERTS-MCP-Server")
 
 # 1. MCP TOOL: Current DateTime Tool
 @mcp.tool()
