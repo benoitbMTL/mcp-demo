@@ -115,3 +115,4 @@ python apps/cli/client.py --target-url http://127.0.0.1:7000/sse --transport sse
 - Web UI and local usage: [CLIENT.md](docs/CLIENT.md)
 - Docker usage: [DOCKER.md](docs/DOCKER.md)
 - Prompt examples: [PROMPTS.md](docs/PROMPTS.md)
+- Protocol version differences: [PROTOCOL_VERSIONS.md](docs/PROTOCOL_VERSIONS.md)
