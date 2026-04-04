@@ -18,8 +18,8 @@ from apps.web.webapp.request_templates import list_templates
 
 DEFAULT_TARGET_URL = "http://mcp-xperts.labsec.ca/mcp"
 DEFAULT_TRANSPORT = "streamable-http"
-SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-05", "2025-06-18", "2025-03-26", "2024-11-05"]
-DEFAULT_PROTOCOL_VERSION = "2025-06-18"
+SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]
+DEFAULT_PROTOCOL_VERSION = "2025-11-25"
 CATEGORY_ORDER = [
     "Discovery",
     "Signature Detection",

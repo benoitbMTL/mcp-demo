@@ -3,7 +3,7 @@ DOCKER ?= docker
 
 TARGET_URL ?= http://mcp-xperts.labsec.ca/mcp
 TRANSPORT ?= streamable-http
-PROTOCOL_VERSION ?= 2025-06-18
+PROTOCOL_VERSION ?= 2025-11-25
 
 IMAGE_NAME ?= mcp-demo-tool
 CONTAINER_NAME ?= mcp-demo-tool

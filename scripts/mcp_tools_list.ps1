@@ -40,7 +40,7 @@ function Get-SessionId {
         id      = 0
         method  = "initialize"
         params  = @{
-            protocolVersion = "2025-11-05"
+            protocolVersion = "2025-11-25"
             capabilities    = @{}
             clientInfo      = @{
                 name    = "powershell"

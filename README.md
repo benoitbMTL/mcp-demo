@@ -72,13 +72,13 @@ make run-cli TARGET_URL=http://127.0.0.1:7000/sse TRANSPORT=sse PROTOCOL_VERSION
 ## Run The MCP Server 🖥️
 
 ```bash
-python server/server.py --transport streamable-http --host 0.0.0.0 --port 7000 --protocol-version 2025-06-18
+python server/server.py --transport streamable-http --host 0.0.0.0 --port 7000 --protocol-version 2025-11-25
 ```
 
 Server options:
 
 - `--transport`: `streamable-http` or `sse`
-- `--protocol-version`: `2025-11-05`, `2025-06-18`, `2025-03-26`, `2024-11-05`
+- `--protocol-version`: `2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05`
 
 ## Run The Web UI 🌐
 
@@ -95,18 +95,18 @@ http://127.0.0.1:7001
 ## Run The CLI Client 💻
 
 ```bash
-python apps/cli/client.py --target-url http://mcp-xperts.labsec.ca/mcp --transport streamable-http --protocol-version 2025-06-18
+python apps/cli/client.py --target-url http://mcp-xperts.labsec.ca/mcp --transport streamable-http --protocol-version 2025-11-25
 ```
 
 CLI options:
 
 - `--transport`: `streamable-http` or `sse`
-- `--protocol-version`: `2025-11-05`, `2025-06-18`, `2025-03-26`, `2024-11-05`
+- `--protocol-version`: `2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05`
 
 Examples:
 
 ```bash
-python apps/cli/client.py --target-url http://127.0.0.1:7000/mcp --transport streamable-http --protocol-version 2025-06-18
+python apps/cli/client.py --target-url http://127.0.0.1:7000/mcp --transport streamable-http --protocol-version 2025-11-25
 python apps/cli/client.py --target-url http://127.0.0.1:7000/sse --transport sse --protocol-version 2025-03-26
 ```
 

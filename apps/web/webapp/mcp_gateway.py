@@ -10,7 +10,7 @@ from urllib.parse import urljoin, urlparse
 import httpx
 
 
-DEFAULT_PROTOCOL_VERSION = "2025-06-18"
+DEFAULT_PROTOCOL_VERSION = "2025-11-25"
 DEFAULT_HEADERS = {"Authorization": "Bearer token"}
 MCP_SESSION_ID_HEADER = "mcp-session-id"
 SSE_ACCEPT_HEADER = "text/event-stream"
