@@ -9,6 +9,8 @@ This repository contains a complete MCP security demo with:
 - shell and PowerShell test scripts
 - Docker packaging for the server + Web UI
 
+![MCP Demo Tool interface](docs/assets/mcp-demo-tool-ui.png)
+
 ## Repository Layout 📁
 
 ```text
