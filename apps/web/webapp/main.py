@@ -2,14 +2,21 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from .mcp_gateway import MCPGatewayError, MCPGatewayErrorWithPayload, connect_probe, send_request
-from .models import ConnectPayload, SendRequestPayload
+from .mcp_gateway import (
+    MCPGatewayError,
+    MCPGatewayErrorWithPayload,
+    connect_probe,
+    disconnect_session,
+    send_request_on_session,
+)
+from .models import ConnectPayload, DisconnectPayload, SendRequestPayload
 from .request_templates import get_default_request, list_templates
 
 
@@ -21,6 +28,19 @@ app = FastAPI(
 )
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+ACTIVE_SESSIONS: dict[str, dict[str, Any]] = {}
+
+
+def get_active_session(client_session_id: str) -> dict[str, Any] | None:
+    return ACTIVE_SESSIONS.get(client_session_id)
+
+
+def set_active_session(client_session_id: str, session_data: dict[str, Any]) -> None:
+    ACTIVE_SESSIONS[client_session_id] = session_data
+
+
+def clear_active_session(client_session_id: str) -> dict[str, Any] | None:
+    return ACTIVE_SESSIONS.pop(client_session_id, None)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -39,7 +59,26 @@ async def index(request: Request) -> HTMLResponse:
 @app.post("/api/connect")
 async def api_connect(payload: ConnectPayload) -> JSONResponse:
     try:
+        previous_session = clear_active_session(payload.client_session_id)
+        if previous_session:
+            await disconnect_session(
+                previous_session["target_url"],
+                previous_session["transport"],
+                previous_session.get("mcp_session_id"),
+            )
+
         result = await connect_probe(payload.target_url, payload.transport)
+        connection = result.get("probe", {}).get("connection", {})
+        set_active_session(
+            payload.client_session_id,
+            {
+                "target_url": payload.target_url,
+                "transport": payload.transport,
+                "endpoint_url": result.get("endpoint_url"),
+                "protocol_version": connection.get("protocol_version"),
+                "mcp_session_id": connection.get("mcp_session_id"),
+            },
+        )
         return JSONResponse(result)
     except MCPGatewayErrorWithPayload as exc:
         return JSONResponse(
@@ -71,7 +110,34 @@ async def api_connect(payload: ConnectPayload) -> JSONResponse:
 @app.post("/api/send")
 async def api_send(payload: SendRequestPayload) -> JSONResponse:
     try:
-        result = await send_request(payload.target_url, payload.transport, payload.request)
+        active_session = get_active_session(payload.client_session_id)
+        if not active_session:
+            return JSONResponse(
+                {
+                    "ok": False,
+                    "message": "No active session. Connect first.",
+                },
+                status_code=400,
+            )
+
+        if (
+            active_session["target_url"] != payload.target_url
+            or active_session["transport"] != payload.transport
+        ):
+            return JSONResponse(
+                {
+                    "ok": False,
+                    "message": "Target URL or transport changed. Disconnect and reconnect first.",
+                },
+                status_code=400,
+            )
+
+        result = await send_request_on_session(
+            payload.target_url,
+            payload.transport,
+            payload.request,
+            active_session.get("mcp_session_id"),
+        )
         return JSONResponse(
             {
                 "ok": True,
@@ -86,6 +152,48 @@ async def api_send(payload: SendRequestPayload) -> JSONResponse:
                 "waf_response": exc.payload,
             },
             status_code=400,
+        )
+    except MCPGatewayError as exc:
+        return JSONResponse(
+            {
+                "ok": False,
+                "message": str(exc),
+            },
+            status_code=400,
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {
+                "ok": False,
+                "message": f"{exc.__class__.__name__}: {exc}",
+            },
+            status_code=502,
+        )
+
+
+@app.post("/api/disconnect")
+async def api_disconnect(payload: DisconnectPayload) -> JSONResponse:
+    active_session = clear_active_session(payload.client_session_id)
+    if not active_session:
+        return JSONResponse(
+            {
+                "ok": True,
+                "disconnected": True,
+                "message": "No active session.",
+            }
+        )
+
+    try:
+        result = await disconnect_session(
+            active_session["target_url"],
+            active_session["transport"],
+            active_session.get("mcp_session_id"),
+        )
+        return JSONResponse(
+            {
+                "ok": True,
+                "result": result,
+            }
         )
     except MCPGatewayError as exc:
         return JSONResponse(

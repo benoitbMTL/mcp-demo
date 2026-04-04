@@ -192,6 +192,25 @@ async def send_http_request(
     return parse_http_response(response)
 
 
+async def delete_http_session(
+    client: httpx.AsyncClient,
+    endpoint_url: str,
+    session_id: str,
+) -> dict[str, Any]:
+    response = await client.request(
+        "DELETE",
+        endpoint_url,
+        headers={
+            **DEFAULT_HEADERS,
+            "Accept": JSON_ACCEPT_HEADER,
+            "Connection": "close",
+            "mcp-protocol-version": DEFAULT_PROTOCOL_VERSION,
+            MCP_SESSION_ID_HEADER: session_id,
+        },
+    )
+    return parse_http_response(response)
+
+
 async def post_with_retry(
     client: httpx.AsyncClient,
     endpoint_url: str,
@@ -411,18 +430,125 @@ async def send_mcp_transaction(endpoint_url: str, payload: Any) -> dict[str, Any
         }
 
 
-async def connect_probe(target_url: str, transport: str) -> dict[str, Any]:
-    endpoint_url = build_endpoint_url(target_url, transport)
-    payload = {
+async def connect_mcp_session(endpoint_url: str) -> dict[str, Any]:
+    probe_payload = {
         "jsonrpc": "2.0",
         "id": "probe-tools-list",
         "method": "tools/list",
     }
 
+    async with httpx.AsyncClient(
+        timeout=15.0,
+        follow_redirects=True,
+        verify=False,
+    ) as client:
+        initialize_reply = await send_http_request(client, endpoint_url, make_initialize_request())
+        session_id = initialize_reply.get("mcp_session_id")
+        if not session_id:
+            raise MCPGatewayError(
+                "The server did not return mcp-session-id during the initialize handshake."
+            )
+
+        initialized_reply = await send_http_request(
+            client,
+            endpoint_url,
+            make_initialized_notification(),
+            session_id=session_id,
+        )
+        request_reply = await send_http_request(
+            client,
+            endpoint_url,
+            probe_payload,
+            session_id=session_id,
+        )
+
+    return {
+        "connection": {
+            "transport": "mcp",
+            "endpoint_url": endpoint_url,
+            "protocol_version": DEFAULT_PROTOCOL_VERSION,
+            "mcp_session_id": session_id,
+        },
+        "bootstrap": {
+            "initialize": initialize_reply,
+            "initialized": initialized_reply,
+        },
+        "response": request_reply,
+    }
+
+
+async def send_mcp_request_on_session(
+    endpoint_url: str,
+    payload: Any,
+    session_id: str,
+) -> dict[str, Any]:
+    async with httpx.AsyncClient(
+        timeout=15.0,
+        follow_redirects=True,
+        verify=False,
+    ) as client:
+        request_reply = await send_http_request(
+            client,
+            endpoint_url,
+            payload,
+            session_id=session_id,
+        )
+
+    return {
+        "connection": {
+            "transport": "mcp",
+            "endpoint_url": endpoint_url,
+            "protocol_version": DEFAULT_PROTOCOL_VERSION,
+            "mcp_session_id": session_id,
+        },
+        "response": request_reply,
+    }
+
+
+async def disconnect_mcp_session(endpoint_url: str, session_id: str) -> dict[str, Any]:
+    async with httpx.AsyncClient(
+        timeout=15.0,
+        follow_redirects=True,
+        verify=False,
+    ) as client:
+        try:
+            response = await delete_http_session(client, endpoint_url, session_id)
+        except Exception as exc:
+            return {
+                "connection": {
+                    "transport": "mcp",
+                    "endpoint_url": endpoint_url,
+                    "protocol_version": DEFAULT_PROTOCOL_VERSION,
+                    "mcp_session_id": session_id,
+                },
+                "disconnected": True,
+                "disconnect_error": f"{exc.__class__.__name__}: {exc}",
+            }
+
+    return {
+        "connection": {
+            "transport": "mcp",
+            "endpoint_url": endpoint_url,
+            "protocol_version": DEFAULT_PROTOCOL_VERSION,
+            "mcp_session_id": session_id,
+        },
+        "response": response,
+        "disconnected": True,
+    }
+
+
+async def connect_probe(target_url: str, transport: str) -> dict[str, Any]:
+    endpoint_url = build_endpoint_url(target_url, transport)
+
     if normalize_transport(transport) == "sse":
+        payload = {
+            "jsonrpc": "2.0",
+            "id": "probe-tools-list",
+            "method": "tools/list",
+        }
         result = await send_sse_transaction(endpoint_url, payload)
     else:
-        result = await send_mcp_transaction(endpoint_url, payload)
+        result = await connect_mcp_session(endpoint_url)
 
     response_payload = result.get("response", {})
     http_result = response_payload.get("request_http", response_payload)
@@ -441,13 +567,25 @@ async def connect_probe(target_url: str, transport: str) -> dict[str, Any]:
 
 
 async def send_request(target_url: str, transport: str, payload: Any) -> dict[str, Any]:
+    return await send_request_on_session(target_url, transport, payload, session_id=None)
+
+
+async def send_request_on_session(
+    target_url: str,
+    transport: str,
+    payload: Any,
+    session_id: str | None,
+) -> dict[str, Any]:
     endpoint_url = build_endpoint_url(target_url, transport)
     normalized_transport = normalize_transport(transport)
 
     if normalized_transport == "sse":
         result = await send_sse_transaction(endpoint_url, payload)
     else:
-        result = await send_mcp_transaction(endpoint_url, payload)
+        if session_id:
+            result = await send_mcp_request_on_session(endpoint_url, payload, session_id)
+        else:
+            result = await send_mcp_transaction(endpoint_url, payload)
 
     response_payload = result.get("response", {})
     http_result = response_payload.get("request_http", response_payload)
@@ -457,6 +595,33 @@ async def send_request(target_url: str, transport: str, payload: Any) -> dict[st
             response_payload.get("event") or http_result.get("body") or http_result,
         )
     return result
+
+
+async def disconnect_session(target_url: str, transport: str, session_id: str | None) -> dict[str, Any]:
+    endpoint_url = build_endpoint_url(target_url, transport)
+    normalized_transport = normalize_transport(transport)
+
+    if normalized_transport == "sse":
+        return {
+            "connection": {
+                "transport": "sse",
+                "endpoint_url": endpoint_url,
+                "protocol_version": DEFAULT_PROTOCOL_VERSION,
+            },
+            "disconnected": True,
+        }
+
+    if not session_id:
+        return {
+            "connection": {
+                "transport": "mcp",
+                "endpoint_url": endpoint_url,
+                "protocol_version": DEFAULT_PROTOCOL_VERSION,
+            },
+            "disconnected": True,
+        }
+
+    return await disconnect_mcp_session(endpoint_url, session_id)
 
 
 class MCPGatewayErrorWithPayload(MCPGatewayError):

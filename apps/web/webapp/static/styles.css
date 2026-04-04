@@ -54,12 +54,26 @@ body {
 .protocol-box {
   width: auto;
   flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .title-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  flex-wrap: nowrap;
+}
+
+.status-meta-group {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 10px;
+  flex-wrap: nowrap;
+  flex: 0 1 auto;
 }
 
 .app-title {
@@ -68,11 +82,13 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .toolbar {
   display: grid;
-  grid-template-columns: 132px minmax(220px, 360px) max-content;
+  grid-template-columns: 132px minmax(220px, 360px) max-content max-content;
   gap: 6px;
   align-items: end;
   justify-content: start;
@@ -159,6 +175,13 @@ textarea:focus {
   box-shadow: 2px 2px 0 #111111;
 }
 
+.tool-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
 .primary-button {
   background: var(--accent);
 }
@@ -175,7 +198,6 @@ textarea:focus {
   font-weight: 700;
   background: #ffffff;
   box-shadow: var(--shadow-sm);
-  margin-left: auto;
 }
 
 .status-badge.connected {
@@ -338,6 +360,6 @@ textarea:focus {
   }
 
   .toolbar {
-    grid-template-columns: 126px minmax(200px, 320px) max-content;
+    grid-template-columns: 126px minmax(200px, 320px) max-content max-content;
   }
 }

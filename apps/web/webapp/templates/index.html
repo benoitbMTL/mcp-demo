@@ -11,10 +11,15 @@
     <header class="topbar panel">
       <div class="title-row">
         <h1 class="app-title">MCP Demo Tool</h1>
-        <div id="protocol-version-display" class="message-box meta-box protocol-box">
-          MCP Protocol Version: unknown
+        <div class="status-meta-group">
+          <div id="protocol-version-display" class="message-box meta-box protocol-box">
+            MCP Protocol Version: unknown
+          </div>
+          <div id="session-token-display" class="message-box meta-box protocol-box">
+            MCP Session Token: unknown
+          </div>
+          <div id="connection-state" class="status-badge disconnected">Disconnected</div>
         </div>
-        <div id="connection-state" class="status-badge disconnected">Disconnected</div>
       </div>
       <div class="toolbar">
         <label class="compact-field">
@@ -29,6 +34,7 @@
           <input id="target-url" type="url" placeholder="http://mcp-xperts.labsec.ca/mcp" value="http://mcp-xperts.labsec.ca/mcp">
         </label>
         <button id="connect-button" class="tool-button primary-button" type="button">Connect</button>
+        <button id="disconnect-button" class="tool-button" type="button">Disconnect</button>
       </div>
     </header>
 

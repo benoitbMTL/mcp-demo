@@ -1,10 +1,12 @@
 (function () {
   const templates = window.APP_BOOTSTRAP.templates;
+  const CLIENT_SESSION_STORAGE_KEY = "mcp-demo-client-session-id";
 
   const elements = {
     targetUrl: document.getElementById("target-url"),
     transportMode: document.getElementById("transport-mode"),
     connectButton: document.getElementById("connect-button"),
+    disconnectButton: document.getElementById("disconnect-button"),
     connectionState: document.getElementById("connection-state"),
     actionGroups: document.getElementById("action-groups"),
     templateDescription: document.getElementById("template-description"),
@@ -16,10 +18,41 @@
     responseViewer: document.getElementById("response-viewer"),
     responseError: document.getElementById("response-error"),
     protocolVersionDisplay: document.getElementById("protocol-version-display"),
+    sessionTokenDisplay: document.getElementById("session-token-display"),
   };
+
+  let isConnected = false;
+
+  function createClientSessionId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID();
+    }
+
+    const randomPart = Math.random().toString(36).slice(2, 12);
+    const timePart = Date.now().toString(36);
+    return `session-${timePart}-${randomPart}`;
+  }
+
+  function getClientSessionId() {
+    const existing = window.localStorage.getItem(CLIENT_SESSION_STORAGE_KEY);
+    if (existing) {
+      return existing;
+    }
+    const created = createClientSessionId();
+    window.localStorage.setItem(CLIENT_SESSION_STORAGE_KEY, created);
+    return created;
+  }
 
   function getTargetEndpoint() {
     return elements.targetUrl.value.trim();
+  }
+
+  function syncActionButtons() {
+    elements.connectButton.disabled = isConnected;
+    elements.disconnectButton.disabled = !isConnected;
+    elements.sendButton.disabled = !isConnected;
+    elements.targetUrl.disabled = isConnected;
+    elements.transportMode.disabled = isConnected;
   }
 
   function groupTemplates(items) {
@@ -118,6 +151,40 @@
     elements.protocolVersionDisplay.textContent = `MCP Protocol Version: ${version || "unknown"}`;
   }
 
+  function setSessionToken(token) {
+    elements.sessionTokenDisplay.textContent = `MCP Session Token: ${token || "unknown"}`;
+  }
+
+  function applyDisconnectedUi(message) {
+    isConnected = false;
+    setConnectionState("neutral", message || "Disconnected.");
+    setProtocolVersion(null);
+    setSessionToken(null);
+    syncActionButtons();
+  }
+
+  function getConnectionDetails(result) {
+    const connection = result?.connection || result?.probe?.connection || {};
+    const response = result?.response || result?.probe?.response || {};
+    const requestHttp = response?.request_http || {};
+    const bootstrapInitialize =
+      result?.bootstrap?.initialize || result?.probe?.bootstrap?.initialize || {};
+
+    return {
+      protocolVersion:
+        connection.protocol_version ||
+        requestHttp.headers?.["mcp-protocol-version"] ||
+        bootstrapInitialize.headers?.["mcp-protocol-version"] ||
+        null,
+      sessionToken:
+        connection.mcp_session_id ||
+        response.mcp_session_id ||
+        requestHttp.mcp_session_id ||
+        bootstrapInitialize.mcp_session_id ||
+        null,
+    };
+  }
+
   function populateTemplate(templateId) {
     const template = findTemplate(templateId);
     if (!template) {
@@ -150,25 +217,49 @@
   async function connect() {
     setConnectionState("neutral", "Connecting to the selected MCP endpoint...");
     clearResponseError();
+    clearRequestError();
 
     try {
       const data = await postJson("/api/connect", {
         target_url: elements.targetUrl.value,
         transport: elements.transportMode.value,
+        client_session_id: getClientSessionId(),
       });
+      isConnected = true;
+      syncActionButtons();
       setConnectionState(
         "connected",
         `Connected to ${data.endpoint_url} using ${data.transport.toUpperCase()}.`
       );
-      setProtocolVersion(data.probe?.connection?.protocol_version);
-      updateRequestMeta(`Connection probe succeeded for ${data.endpoint_url}`);
+      const connectionDetails = getConnectionDetails(data.probe);
+      setProtocolVersion(connectionDetails.protocolVersion);
+      setSessionToken(connectionDetails.sessionToken);
+      updateRequestMeta(`Connection established for ${data.endpoint_url}`);
       setResponse(extractMcpPayload(data.probe));
     } catch (error) {
-      setConnectionState("error", error.message);
+      applyDisconnectedUi(error.message);
       showResponseError(error.message);
       setResponse(
         (error.payload && error.payload.waf_response) || { error: error.message }
       );
+    }
+  }
+
+  async function disconnect() {
+    clearResponseError();
+    clearRequestError();
+
+    try {
+      const data = await postJson("/api/disconnect", {
+        client_session_id: getClientSessionId(),
+      });
+      applyDisconnectedUi("Disconnected from the active MCP session.");
+      updateRequestMeta(data.message || "Session disconnected.");
+      setResponse(data.result || { disconnected: true });
+    } catch (error) {
+      applyDisconnectedUi(error.message);
+      showResponseError(error.message);
+      setResponse({ error: error.message });
     }
   }
 
@@ -200,6 +291,12 @@
   async function sendRequest() {
     clearRequestError();
     clearResponseError();
+
+    if (!isConnected) {
+      showRequestError("Connect first before sending an MCP request.");
+      return;
+    }
+
     let parsedJson;
 
     try {
@@ -209,22 +306,25 @@
       return;
     }
 
-    updateRequestMeta("JSON parsed successfully. Sending request.");
+    updateRequestMeta("JSON parsed successfully. Sending request on the current session.");
     setResponse({ message: "Sending request..." });
 
     try {
       const data = await postJson("/api/send", {
         target_url: elements.targetUrl.value,
         transport: elements.transportMode.value,
+        client_session_id: getClientSessionId(),
         request: parsedJson,
       });
       setConnectionState(
         "connected",
         `Last MCP request succeeded against ${getTargetEndpoint()}.`
       );
-      setProtocolVersion(data.result?.connection?.protocol_version);
+      const connectionDetails = getConnectionDetails(data.result);
+      setProtocolVersion(connectionDetails.protocolVersion);
+      setSessionToken(connectionDetails.sessionToken);
       setResponse(extractMcpPayload(data.result));
-      updateRequestMeta("Request completed.");
+      updateRequestMeta("Request completed on the active session.");
     } catch (error) {
       setConnectionState("error", error.message);
       showResponseError(error.message);
@@ -235,6 +335,7 @@
   }
 
   elements.connectButton.addEventListener("click", connect);
+  elements.disconnectButton.addEventListener("click", disconnect);
   elements.sendButton.addEventListener("click", sendRequest);
   elements.formatButton.addEventListener("click", () => {
     clearRequestError();
@@ -248,7 +349,7 @@
   });
 
   renderActionGroups();
-  setProtocolVersion(null);
+  applyDisconnectedUi("No active MCP session.");
   if (templates.length > 0) {
     populateTemplate(templates[0].id);
   }
