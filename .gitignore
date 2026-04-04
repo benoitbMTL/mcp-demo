@@ -18,6 +18,7 @@ dist/
 
 # Logs
 *.log
+!server/files/app.log
 
 # Environment variables / secrets
 .env
