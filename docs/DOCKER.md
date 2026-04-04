@@ -41,7 +41,7 @@ docker run -d \
   --restart unless-stopped \
   -p 7000:7000 \
   -p 7001:7001 \
-  -e MCP_TRANSPORT=httpstream \
+  -e MCP_TRANSPORT=streamable-http \
   -e MCP_PROTOCOL_VERSION=2025-06-18 \
   -e MCP_TOOL_DESCRIPTION_VARIANT=malicious_cryptojacking \
   -e MCP_RESOURCE_VARIANT=bias_master_slave \

@@ -4,13 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MCP Demo Tool</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', path='/mcp-logo.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar panel">
       <div class="title-row">
-        <h1 class="app-title">MCP Demo Tool</h1>
+        <h1 class="app-title">
+          <img class="app-title-logo" src="{{ url_for('static', path='/mcp-logo.svg') }}" alt="MCP logo">
+          <span>MCP Demo Tool</span>
+        </h1>
         <div class="status-meta-group">
           <div id="protocol-version-display" class="message-box meta-box protocol-box">
             MCP Protocol Version: unknown
@@ -25,7 +29,7 @@
         <label class="compact-field">
           <span>Transport</span>
           <select id="transport-mode">
-            <option value="mcp">HTTPStream</option>
+            <option value="streamable-http">Streamable HTTP</option>
             <option value="sse">SSE</option>
           </select>
         </label>

@@ -18,7 +18,7 @@ pip install -r requirements.txt
 ## Start The MCP Server Locally
 
 ```bash
-python server/server.py --transport httpstream --host 0.0.0.0 --port 7000 --protocol-version 2025-06-18
+python server/server.py --transport streamable-http --host 0.0.0.0 --port 7000 --protocol-version 2025-06-18
 ```
 
 ## Start The Web UI
@@ -36,11 +36,11 @@ http://127.0.0.1:7001
 ## Start The CLI Client
 
 ```bash
-python apps/cli/client.py --target-url http://127.0.0.1:7000/mcp --transport mcp
+python apps/cli/client.py --target-url http://127.0.0.1:7000/mcp --transport streamable-http --protocol-version 2025-06-18
 ```
 
 For SSE:
 
 ```bash
-python apps/cli/client.py --target-url http://127.0.0.1:7000/sse --transport sse
+python apps/cli/client.py --target-url http://127.0.0.1:7000/sse --transport sse --protocol-version 2025-06-18
 ```

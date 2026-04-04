@@ -47,6 +47,16 @@
     return elements.targetUrl.value.trim();
   }
 
+  function getTransportLabel(transport) {
+    if (transport === "streamable-http") {
+      return "Streamable HTTP";
+    }
+    if (transport === "sse") {
+      return "SSE";
+    }
+    return transport || "Unknown";
+  }
+
   function syncActionButtons() {
     elements.connectButton.disabled = isConnected;
     elements.disconnectButton.disabled = !isConnected;
@@ -229,7 +239,7 @@
       syncActionButtons();
       setConnectionState(
         "connected",
-        `Connected to ${data.endpoint_url} using ${data.transport.toUpperCase()}.`
+        `Connected to ${data.endpoint_url} using ${getTransportLabel(data.transport)}.`
       );
       const connectionDetails = getConnectionDetails(data.probe);
       setProtocolVersion(connectionDetails.protocolVersion);

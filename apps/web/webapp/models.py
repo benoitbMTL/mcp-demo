@@ -3,7 +3,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
-TransportMode = Literal["sse", "mcp"]
+TransportMode = Literal["sse", "streamable-http"]
 
 
 class ConnectPayload(BaseModel):

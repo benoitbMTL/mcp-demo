@@ -2,7 +2,7 @@ PYTHON ?= python3
 DOCKER ?= docker
 
 TARGET_URL ?= http://mcp-xperts.labsec.ca/mcp
-TRANSPORT ?= mcp
+TRANSPORT ?= streamable-http
 PROTOCOL_VERSION ?= 2025-06-18
 
 IMAGE_NAME ?= mcp-demo-tool
@@ -17,7 +17,7 @@ run-web:
 	$(PYTHON) apps/web/run_web_ui.py
 
 run-cli:
-	$(PYTHON) apps/cli/client.py --target-url $(TARGET_URL) --transport $(TRANSPORT)
+	$(PYTHON) apps/cli/client.py --target-url $(TARGET_URL) --transport $(TRANSPORT) --protocol-version $(PROTOCOL_VERSION)
 
 docker-build:
 	$(DOCKER) build -f docker/Dockerfile -t $(IMAGE_NAME) .

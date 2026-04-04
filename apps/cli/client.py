@@ -17,7 +17,9 @@ from apps.web.webapp.request_templates import list_templates
 
 
 DEFAULT_TARGET_URL = "http://mcp-xperts.labsec.ca/mcp"
-DEFAULT_TRANSPORT = "mcp"
+DEFAULT_TRANSPORT = "streamable-http"
+SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-05", "2025-06-18", "2025-03-26", "2024-11-05"]
+DEFAULT_PROTOCOL_VERSION = "2025-06-18"
 CATEGORY_ORDER = [
     "Discovery",
     "Signature Detection",
@@ -41,10 +43,11 @@ def print_json_block(title: str, payload: Any) -> None:
     print(json.dumps(to_jsonable(payload), indent=2, ensure_ascii=False))
 
 
-def print_header(target_url: str, transport: str) -> None:
+def print_header(target_url: str, transport: str, protocol_version: str) -> None:
     print("\n=== MCP Demo CLI ===")
     print(f"Target URL: {target_url}")
     print(f"Transport: {transport}")
+    print(f"Protocol version: {protocol_version}")
     print("Note: the target URL must include the full MCP endpoint path such as /mcp or /sse.")
 
 
@@ -93,6 +96,7 @@ async def execute_template(
     *,
     target_url: str,
     transport: str,
+    protocol_version: str,
     request_id_start: int,
 ) -> tuple[bool, int]:
     request_payload, next_id = assign_request_ids(template["request"], request_id_start)
@@ -103,7 +107,12 @@ async def execute_template(
     print_json_block("JSON request", request_payload)
 
     try:
-        result = await send_request(target_url, transport, request_payload)
+        result = await send_request(
+            target_url,
+            transport,
+            request_payload,
+            protocol_version=protocol_version,
+        )
         print_json_block("Connection details", result.get("connection"))
         print_json_block("JSON response", extract_response_payload(result))
         return True, next_id
@@ -142,6 +151,7 @@ async def run_template_batch(
     *,
     target_url: str,
     transport: str,
+    protocol_version: str,
     title: str,
 ) -> None:
     print(f"\n=== {title} ===")
@@ -153,6 +163,7 @@ async def run_template_batch(
             template,
             target_url=target_url,
             transport=transport,
+            protocol_version=protocol_version,
             request_id_start=next_request_id,
         )
         if succeeded:
@@ -187,7 +198,14 @@ def print_submenu(category: str, templates: list[dict[str, Any]]) -> None:
     print("0. Back")
 
 
-async def run_submenu(category: str, templates: list[dict[str, Any]], *, target_url: str, transport: str) -> None:
+async def run_submenu(
+    category: str,
+    templates: list[dict[str, Any]],
+    *,
+    target_url: str,
+    transport: str,
+    protocol_version: str,
+) -> None:
     while True:
         print_submenu(category, templates)
         choice = input("\nSelect an action: ").strip()
@@ -199,6 +217,7 @@ async def run_submenu(category: str, templates: list[dict[str, Any]], *, target_
                 templates,
                 target_url=target_url,
                 transport=transport,
+                protocol_version=protocol_version,
                 title=f"Run all actions in {category}",
             )
             continue
@@ -209,6 +228,7 @@ async def run_submenu(category: str, templates: list[dict[str, Any]], *, target_
                     [templates[index]],
                     target_url=target_url,
                     transport=transport,
+                    protocol_version=protocol_version,
                     title=f"Run action: {templates[index]['label']}",
                 )
                 continue
@@ -216,12 +236,12 @@ async def run_submenu(category: str, templates: list[dict[str, Any]], *, target_
         print("Unknown choice.")
 
 
-async def run_menu(target_url: str, transport: str) -> None:
+async def run_menu(target_url: str, transport: str, protocol_version: str) -> None:
     grouped = group_templates_by_category()
     ordered_sections = [(category, grouped.get(category, [])) for category in CATEGORY_ORDER]
 
     while True:
-        print_header(target_url, transport)
+        print_header(target_url, transport, protocol_version)
         print_main_menu()
         choice = input("\nSelect a section: ").strip()
 
@@ -233,6 +253,7 @@ async def run_menu(target_url: str, transport: str) -> None:
                 all_templates,
                 target_url=target_url,
                 transport=transport,
+                protocol_version=protocol_version,
                 title="Run all MCP actions",
             )
             continue
@@ -245,6 +266,7 @@ async def run_menu(target_url: str, transport: str) -> None:
                     templates,
                     target_url=target_url,
                     transport=transport,
+                    protocol_version=protocol_version,
                 )
                 continue
 
@@ -260,16 +282,22 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--transport",
-        choices=["mcp", "sse"],
+        choices=["streamable-http", "sse"],
         default=DEFAULT_TRANSPORT,
         help="Transport mode used for MCP requests.",
+    )
+    parser.add_argument(
+        "--protocol-version",
+        choices=SUPPORTED_PROTOCOL_VERSIONS,
+        default=DEFAULT_PROTOCOL_VERSION,
+        help="Requested MCP protocol version sent by the client.",
     )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    asyncio.run(run_menu(args.target_url, args.transport))
+    asyncio.run(run_menu(args.target_url, args.transport, args.protocol_version))
 
 
 if __name__ == "__main__":

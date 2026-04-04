@@ -3,7 +3,7 @@ set -euo pipefail
 
 IMAGE_NAME="${IMAGE_NAME:-mcp-demo-tool}"
 CONTAINER_NAME="${CONTAINER_NAME:-mcp-demo-tool}"
-TRANSPORT="${TRANSPORT:-mcp}"
+TRANSPORT="${TRANSPORT:-streamable-http}"
 PROTOCOL_VERSION="${PROTOCOL_VERSION:-2025-06-18}"
 
 if docker ps -a --format '{{.Names}}' | grep -Fxq "${CONTAINER_NAME}"; then
