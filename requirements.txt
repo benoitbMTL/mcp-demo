@@ -1,4 +1,8 @@
 pypdf
 pytz
 fastmcp
+mcp
 uvicorn
+fastapi
+jinja2
+httpx

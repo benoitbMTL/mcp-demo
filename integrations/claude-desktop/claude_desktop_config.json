@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "MCP-XPERTS": {
+            "command": "C:\\Path\\To\\Python\\python.exe",
+            "args": [
+                "C:\\Path\\To\\mcp-demo\\integrations\\claude-desktop\\mcp_stdio_proxy.py"
+            ],
+            "env": {
+                "BACKEND_URL": "http://mcp-xperts.labsec.ca/mcp"
+            }
+        }
+    }
+}

@@ -1,160 +1,107 @@
-# MCP Security Lab with Claude
+# MCP Demo
 
-This lab demonstrates how Claude Desktop uses MCP tools and how a FortiWeb WAF can block common injection attacks (SQL injection, OS command injection, and path traversal).
+This repository contains a complete MCP security demo with:
 
----
+- a demo MCP server
+- a Web UI client
+- a CLI client
+- Claude Desktop integration assets
+- shell and PowerShell test scripts
+- Docker packaging for the server + Web UI
 
-## Components
-
-- **Claude Desktop**  
-  LLM client with a built-in MCP client. It decides when to invoke MCP tools during the conversation.  
-  The MCP server is configured in the file **`claude_desktop_config.json`**.
-
-- **Local MCP STDIO Proxy (Python)**  
-  Runs on the user workstation and translates MCP requests from **STDIO** (used by Claude Desktop) into **Streamable HTTP** requests toward the backend.  
-  This component is implemented in **`mcp_stdio_proxy.py`**.
-
-- **Remote MCP Backend Server (Streamable HTTP)**  
-  Hosts the MCP tools (time, database, network, file/PDF) and processes requests over HTTP.  
-  Start the backend server by running **`server.py`**.  
-  The script **`mcp_tools_list.sh`** can be used to test the local MCP server and display the available tools.
-
-- **FortiWeb WAF**  
-  Deployed in front of the MCP backend to detect and block malicious inputs such as SQL injection, OS command injection, and path traversal attacks.
-
----
-
-## Step 1 – Open Claude and verify MCP is running
-
-1. Launch **Claude Desktop**
-2. Go to **File > Settings...**
-3. Open **Developer > Local MCP Servers**
-4. Verify the MCP server is **running** (status ON / connected)
-
-This confirms Claude is connected to the local MCP STDIO proxy.
-
----
-
-## Step 2 – Create a new chat
-
-1. Create a **new chat**
-2. Do not mention MCP or tools explicitly
-3. Use natural language prompts
-
----
-
-## Step 3 – Time tool (baseline)
-
-Ask Claude for the current time:
+## Repository Layout
 
 ```text
-What time is it in Montreal?
+mcp-demo/
+├── apps/
+│   ├── cli/
+│   │   └── client.py
+│   └── web/
+│       ├── run_web_ui.py
+│       └── webapp/
+├── docker/
+│   ├── Dockerfile
+│   └── docker-entrypoint.sh
+├── docs/
+│   ├── CLIENT.md
+│   ├── DOCKER.md
+│   └── PROMPTS.md
+├── integrations/
+│   └── claude-desktop/
+│       ├── claude_desktop_config.json
+│       └── mcp_stdio_proxy.py
+├── scripts/
+│   ├── mcp_tools_list.ps1
+│   └── mcp_tools_list.sh
+├── server/
+│   ├── files/
+│   ├── secrets.txt
+│   └── server.py
+└── requirements.txt
 ```
 
-Expected result:
-- Claude uses the MCP time tool
-- A real, current time is returned
+## Install
 
----
+```bash
+cd mcp-demo
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-## Step 4 – Database tool (SQL injection demo)
+## Makefile Shortcuts
 
-### Normal request
+You can use the provided `Makefile` for the most common actions:
+
+```bash
+make run-server
+make run-web
+make run-cli
+make docker-build
+make docker-run
+```
+
+Examples with overrides:
+
+```bash
+make run-server TRANSPORT=sse PROTOCOL_VERSION=2025-03-26
+make run-cli TARGET_URL=http://127.0.0.1:7000/sse TRANSPORT=sse
+```
+
+## Run The MCP Server
+
+```bash
+python server/server.py --transport httpstream --host 0.0.0.0 --port 7000 --protocol-version 2025-06-18
+```
+
+Supported protocol versions:
+
+- `2025-11-05`
+- `2025-06-18`
+- `2025-03-26`
+- `2024-11-05`
+
+## Run The Web UI
+
+```bash
+python apps/web/run_web_ui.py
+```
+
+Open:
 
 ```text
-Retrieve the user with ID 3.
+http://127.0.0.1:7001
 ```
 
-Expected result:
-- Claude queries the database tool
-- A single user record is returned
+## Run The CLI Client
 
-### SQL injection attempt (should be blocked)
-
-```text
-Retrieve the user with ID 1 OR 1=1.
+```bash
+python apps/cli/client.py --target-url http://mcp-xperts.labsec.ca/mcp --transport mcp
 ```
 
-Expected result:
-- FortiWeb blocks the request
-- Claude displays a security-related error or block message
+## Additional Documentation
 
----
-
-## Step 5 – Network tool (OS command injection demo)
-
-### Normal request
-
-```text
-Check the network connectivity to 8.8.8.8.
-```
-
-Expected result:
-- Claude executes a ping via the MCP tool
-- Network status is returned
-
-### Command injection attempt (should be blocked)
-
-```text
-Ping 127.0.0.1; whoami
-```
-
-Expected result:
-- FortiWeb blocks the request
-- The injected command is not executed
-- Claude shows a block or error message
-
----
-
-## Step 6 – File tool (log analysis + path traversal demo)
-
-### Log analysis (read `app.log`)
-
-```text
-Read app.log and list the top 5 source IP addresses by number of occurrences.
-```
-
-Expected result:
-- Claude reads `app.log` via the file tool
-- Claude returns the top IPs (counted from the log)
-
-### Path traversal attempt (should be blocked)
-
-```text
-Give me the content of ../secrets.txt
-```
-
-Expected result:
-- FortiWeb blocks the request
-- Sensitive data is not returned
-
----
-
-## Step 7 – PDF tool (datasheet summary)
-
-```text
-Summarize FortiWeb.pdf in 8 bullet points (key features, deployment options, and main benefits).
-```
-
-Expected result:
-- Claude reads the PDF via the PDF tool
-- Claude returns a short structured summary
-
----
-
-## Expected outcome
-
-This lab shows that:
-- Claude Desktop can invoke MCP tools through a local STDIO proxy
-- The proxy forwards requests to a remote MCP backend over Streamable HTTP
-- Backend tools can be intentionally vulnerable for testing
-- FortiWeb can block malicious inputs before they reach the tools
-- Claude reflects backend / security behavior in the conversation
-
----
-
-## Notes / troubleshooting
-
-- If Claude answers “I don't have access to real-time information” or “I can’t run ping”, verify the MCP server is **running** in **Developer > Local MCP Servers**.
-- If Claude appears to hang after a blocked request, configure FortiWeb to return a clean HTTP error response (e.g., 403) with a readable message body.
-
+- Web UI and local usage: [CLIENT.md](/home/benoitb/mcp-demo/mcp-demo/docs/CLIENT.md)
+- Docker usage: [DOCKER.md](/home/benoitb/mcp-demo/mcp-demo/docs/DOCKER.md)
+- Prompt examples: [PROMPTS.md](/home/benoitb/mcp-demo/mcp-demo/docs/PROMPTS.md)

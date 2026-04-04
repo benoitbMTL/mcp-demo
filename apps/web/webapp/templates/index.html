@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP Demo Tool</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar panel">
+      <div class="title-row">
+        <h1 class="app-title">MCP Demo Tool</h1>
+        <div id="protocol-version-display" class="message-box meta-box protocol-box">
+          MCP Protocol Version: unknown
+        </div>
+        <div id="connection-state" class="status-badge disconnected">Disconnected</div>
+      </div>
+      <div class="toolbar">
+        <label class="compact-field">
+          <span>Transport</span>
+          <select id="transport-mode">
+            <option value="mcp">HTTPStream</option>
+            <option value="sse">SSE</option>
+          </select>
+        </label>
+        <label class="compact-field url-field">
+          <span>Target URL</span>
+          <input id="target-url" type="url" placeholder="http://mcp-xperts.labsec.ca/mcp" value="http://mcp-xperts.labsec.ca/mcp">
+        </label>
+        <button id="connect-button" class="tool-button primary-button" type="button">Connect</button>
+      </div>
+    </header>
+
+    <main class="workspace-grid">
+      <section class="panel column actions-column">
+        <div class="column-header">
+          <h2>MCP Actions</h2>
+          <p>Single click loads a request into the editor.</p>
+        </div>
+        <div id="action-groups" class="action-groups"></div>
+      </section>
+
+      <section class="panel column editor-column">
+        <div class="column-header">
+          <h2>Request JSON</h2>
+          <p id="template-description">Edit the request or send it directly.</p>
+        </div>
+        <textarea id="request-editor" class="code-panel request-editor" spellcheck="false">{{ default_request_json }}</textarea>
+        <div id="request-error" class="message-box error-box hidden"></div>
+        <div id="request-meta" class="message-box meta-box">JSON validation runs before every send.</div>
+        <div class="button-row">
+          <button id="format-button" class="tool-button" type="button">Format JSON</button>
+          <button id="send-button" class="tool-button primary-button" type="button">Send Request</button>
+        </div>
+      </section>
+
+      <section class="panel column response-column">
+        <div class="column-header">
+          <h2>Response Viewer</h2>
+          <p>Pretty-printed output from the MCP endpoint.</p>
+        </div>
+        <pre id="response-viewer" class="code-panel response-viewer">{
+  "message": "Connect to an MCP endpoint and send a request."
+}</pre>
+        <div id="response-error" class="message-box error-box hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.APP_BOOTSTRAP = {
+      templates: {{ templates_json | safe }}
+    };
+  </script>
+  <script src="{{ url_for('static', path='/app.js') }}"></script>
+</body>
+</html>

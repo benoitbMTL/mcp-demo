@@ -1,14 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# docker build -t mcp-security-lab .
+IMAGE_NAME="${IMAGE_NAME:-mcp-demo-tool}"
+CONTAINER_NAME="${CONTAINER_NAME:-mcp-demo-tool}"
+TRANSPORT="${TRANSPORT:-mcp}"
+PROTOCOL_VERSION="${PROTOCOL_VERSION:-2025-06-18}"
 
-IMAGE_NAME=mcp-security-lab
-CONTAINER_NAME=mcp-server
-HOST_PORT=7000
-CONTAINER_PORT=7000
+if docker ps -a --format '{{.Names}}' | grep -Fxq "${CONTAINER_NAME}"; then
+  echo "[INFO] Stopping existing container: ${CONTAINER_NAME}"
+  docker rm -f "${CONTAINER_NAME}"
+fi
 
+echo "[INFO] Building image: ${IMAGE_NAME}"
+docker build -f docker/Dockerfile -t "${IMAGE_NAME}" .
+
+echo "[INFO] Starting container: ${CONTAINER_NAME}"
 docker run -d \
+  --name "${CONTAINER_NAME}" \
   --restart unless-stopped \
-  --name ${CONTAINER_NAME} \
-  -p ${HOST_PORT}:${CONTAINER_PORT} \
-  ${IMAGE_NAME}
+  -p 7000:7000 \
+  -p 7001:7001 \
+  -e MCP_TRANSPORT="${TRANSPORT}" \
+  -e MCP_PROTOCOL_VERSION="${PROTOCOL_VERSION}" \
+  "${IMAGE_NAME}"
+
+echo "[INFO] Container is running."
