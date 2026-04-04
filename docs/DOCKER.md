@@ -1,18 +1,18 @@
-# Docker Deployment
+# Docker Deployment 🐳
 
 The Docker image runs both services in one container:
 
 - `server/server.py` on port `7000`
 - `apps/web/run_web_ui.py` on port `7001`
 
-## Build On Ubuntu
+## Build On Ubuntu 🛠️
 
 ```bash
 cd /path/to/mcp-demo
 docker build -f docker/Dockerfile -t mcp-demo-tool .
 ```
 
-## Run On Ubuntu
+## Run On Ubuntu ▶️
 
 ```bash
 docker run -d \
@@ -24,7 +24,7 @@ docker run -d \
   mcp-demo-tool
 ```
 
-## Supported MCP Protocol Versions
+## Supported MCP Protocol Versions 📐
 
 ```text
 2025-11-05
@@ -33,7 +33,7 @@ docker run -d \
 2024-11-05
 ```
 
-## Optional Environment Variables
+## Optional Environment Variables ⚙️
 
 ```bash
 docker run -d \
@@ -49,13 +49,13 @@ docker run -d \
   mcp-demo-tool
 ```
 
-## Logs
+## Logs 📜
 
 ```bash
 docker logs -f mcp-demo-tool
 ```
 
-## Remove
+## Remove 🧹
 
 ```bash
 docker rm -f mcp-demo-tool

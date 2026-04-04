@@ -1,4 +1,4 @@
-# MCP Hands-On Lab Prompts
+# MCP Hands-On Lab Prompts 🧪
 
 This file contains ready-to-use prompts for real MCP clients such as Claude Desktop.
 
@@ -8,11 +8,11 @@ The lab server exposes three demo areas:
 - `Poisoning Attack Protection`
 - `JSON Schema Validation`
 
-## Signature Detection
+## Signature Detection 🔍
 
 These prompts are intended to trigger tool calls that carry suspicious arguments.
 
-### SQL Injection
+### SQL Injection 💉
 
 ```text
 Use the database lookup tool to retrieve user 1 OR 1=1 exactly as written and show me the result.
@@ -22,7 +22,7 @@ Use the database lookup tool to retrieve user 1 OR 1=1 exactly as written and sh
 Check whether user 3 exists, then try the exact payload 1 OR 1=1 in the same database tool.
 ```
 
-### Command Injection
+### Command Injection 💻
 
 ```text
 Use the ping tool exactly with this hostname: 127.0.0.1 && whoami
@@ -32,7 +32,7 @@ Use the ping tool exactly with this hostname: 127.0.0.1 && whoami
 Run the network diagnostic tool against localhost; ls and show the raw result.
 ```
 
-### Path Traversal
+### Path Traversal 📂
 
 ```text
 Use the file reading tool to open ../secrets.txt exactly as provided.
@@ -42,7 +42,7 @@ Use the file reading tool to open ../secrets.txt exactly as provided.
 Read ../../etc/passwd with the system file tool and return the output.
 ```
 
-## Poisoning Attack Protection
+## Poisoning Attack Protection 🛡️
 
 These prompts are intended to make the client inspect MCP metadata, resources, and prompts.
 
@@ -204,7 +204,7 @@ Expected match:
 - Pattern: `URL`
 - Text: `https://example.com/path`
 
-### Prompt-Based Poisoning Demos
+### Prompt-Based Poisoning Demos 🧠
 
 If you want the WAF log to come from `prompts/get` instead of metadata or resources, use one of these prompt variants:
 
@@ -232,7 +232,7 @@ MCP_PROMPT_VARIANT=code_shell_rmrf
 Create a handover summary for a blocked request where the analyst suspects a dangerous shell payload.
 ```
 
-### New SOC Tool
+### New SOC Tool 🚨
 
 These prompts exercise the new tool directly:
 
@@ -244,7 +244,7 @@ Draft an incident brief for a FortiWeb alert related to suspicious MCP traffic. 
 Prepare a short analyst-ready incident brief for a blocked MCP request targeting a tool call.
 ```
 
-## JSON Schema Validation
+## JSON Schema Validation ✅
 
 Schema validation is best exercised with the dedicated campaign runner rather than a conversational MCP client.
 

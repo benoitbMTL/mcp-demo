@@ -1,4 +1,4 @@
-# MCP Demo
+# MCP Demo 🚀
 
 This repository contains a complete MCP security demo with:
 
@@ -9,7 +9,7 @@ This repository contains a complete MCP security demo with:
 - shell and PowerShell test scripts
 - Docker packaging for the server + Web UI
 
-## Repository Layout
+## Repository Layout 📁
 
 ```text
 mcp-demo/
@@ -40,7 +40,7 @@ mcp-demo/
 └── requirements.txt
 ```
 
-## Install
+## Install 🛠️
 
 ```bash
 cd mcp-demo
@@ -50,7 +50,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## Makefile Shortcuts
+## Makefile Shortcuts ⚡
 
 You can use the provided `Makefile` for the most common actions:
 
@@ -69,7 +69,7 @@ make run-server TRANSPORT=sse PROTOCOL_VERSION=2025-03-26
 make run-cli TARGET_URL=http://127.0.0.1:7000/sse TRANSPORT=sse PROTOCOL_VERSION=2025-03-26
 ```
 
-## Run The MCP Server
+## Run The MCP Server 🖥️
 
 ```bash
 python server/server.py --transport streamable-http --host 0.0.0.0 --port 7000 --protocol-version 2025-06-18
@@ -78,7 +78,7 @@ python server/server.py --transport streamable-http --host 0.0.0.0 --port 7000 -
 Server options:
 
 - `--transport`: `streamable-http` or `sse`
-- `--protocol-version`: one of the versions below
+- `--protocol-version`: `2025-11-05`, `2025-06-18`, `2025-03-26`, `2024-11-05`
 
 Supported protocol versions:
 
@@ -87,7 +87,7 @@ Supported protocol versions:
 - `2025-03-26`
 - `2024-11-05`
 
-## Run The Web UI
+## Run The Web UI 🌐
 
 ```bash
 python apps/web/run_web_ui.py
@@ -99,7 +99,7 @@ Open:
 http://127.0.0.1:7001
 ```
 
-## Run The CLI Client
+## Run The CLI Client 💻
 
 ```bash
 python apps/cli/client.py --target-url http://mcp-xperts.labsec.ca/mcp --transport streamable-http --protocol-version 2025-06-18
@@ -108,8 +108,7 @@ python apps/cli/client.py --target-url http://mcp-xperts.labsec.ca/mcp --transpo
 CLI options:
 
 - `--transport`: `streamable-http` or `sse`
-- `--protocol-version`: one of:
-  `2025-11-05`, `2025-06-18`, `2025-03-26`, `2024-11-05`
+- `--protocol-version`: `2025-11-05`, `2025-06-18`, `2025-03-26`, `2024-11-05`
 
 Examples:
 
@@ -118,8 +117,8 @@ python apps/cli/client.py --target-url http://127.0.0.1:7000/mcp --transport str
 python apps/cli/client.py --target-url http://127.0.0.1:7000/sse --transport sse --protocol-version 2025-03-26
 ```
 
-## Additional Documentation
+## Additional Documentation 📚
 
-- Web UI and local usage: [CLIENT.md](/home/benoitb/mcp-demo/mcp-demo/docs/CLIENT.md)
-- Docker usage: [DOCKER.md](/home/benoitb/mcp-demo/mcp-demo/docs/DOCKER.md)
-- Prompt examples: [PROMPTS.md](/home/benoitb/mcp-demo/mcp-demo/docs/PROMPTS.md)
+- Web UI and local usage: [CLIENT.md](docs/CLIENT.md)
+- Docker usage: [DOCKER.md](docs/DOCKER.md)
+- Prompt examples: [PROMPTS.md](docs/PROMPTS.md)
