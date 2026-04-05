@@ -271,10 +271,58 @@ body[data-theme="glassmorphism"] .action-button {
   padding: 10px 12px;
 }
 
+.view-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex: 0 0 auto;
+  margin: 0 auto;
+}
+
+.tab-button {
+  min-width: 84px;
+  padding: 5px 12px;
+  font-size: 0.68rem;
+  line-height: 1.1;
+  box-shadow: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--muted);
+  border-color: transparent;
+}
+
+.tab-button.active {
+  background: var(--accent);
+  color: var(--panel-strong);
+  border-color: var(--accent-strong);
+}
+
+body[data-theme="neo-brutalism"] .tab-button {
+  box-shadow: 3px 3px 0 #111111;
+}
+
+body[data-theme="neo-brutalism"] .tab-button.active {
+  background: #ff6b57;
+  color: #111111;
+  border-color: #111111;
+  box-shadow: 3px 3px 0 #111111;
+}
+
 .protocol-box {
   width: auto;
   flex: 0 0 auto;
   white-space: nowrap;
+}
+
+.title-nav-group {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 14px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .title-row {
@@ -329,14 +377,10 @@ body[data-theme="glassbox-dark"] .app-title-logo {
 
 .toolbar-main {
   display: grid;
-  grid-template-columns: 168px minmax(220px, 360px) max-content max-content;
+  grid-template-columns: 168px 160px minmax(220px, 360px) max-content max-content;
   gap: 8px;
   align-items: end;
   justify-content: start;
-}
-
-.theme-field {
-  flex: 0 0 168px;
 }
 
 .compact-field {
@@ -665,8 +709,58 @@ body[data-theme="bootstrap-light"] .status-badge.error {
   border-color: #f5c2c7;
 }
 
+body[data-theme="bootstrap-light"] .tab-button {
+  background: #f1f3f5;
+  color: #495057;
+  border-color: #ced4da;
+}
+
+body[data-theme="bootstrap-light"] .tab-button.active {
+  background: #0d6efd;
+  color: #ffffff;
+  border-color: #0b5ed7;
+}
+
+body[data-theme="glassmorphism"] .tab-button {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 241, 241, 0.82);
+  border-color: rgba(255, 219, 219, 0.12);
+}
+
+body[data-theme="glassmorphism"] .tab-button.active {
+  background: rgba(255, 138, 138, 0.92);
+  color: #2e1116;
+  border-color: rgba(255, 95, 109, 0.9);
+}
+
+body[data-theme="glassbox-dark"] .tab-button {
+  background: rgba(19, 25, 41, 0.92);
+  color: #8fa0bd;
+  border-color: #24314b;
+}
+
+body[data-theme="glassbox-dark"] .tab-button.active {
+  background: #4a9eff;
+  color: #f4f8ff;
+  border-color: #2c7fe0;
+}
+
 body[data-theme="fortinet"] .topbar {
   border-bottom: 1px solid #d8d8d8;
+}
+
+body[data-theme="fortinet"] .tab-button {
+  border-radius: 0;
+  background: #f5f6f7;
+  color: #666666;
+  border-color: #cfcfcf;
+  font-weight: 700;
+}
+
+body[data-theme="fortinet"] .tab-button.active {
+  background: #ffdede;
+  color: #dc291e;
+  border-color: #f1c3c3;
 }
 
 body[data-theme="fortinet"] .app-title {
@@ -846,8 +940,17 @@ body[data-theme="fortinet"] .editor-column {
 }
 
 body[data-theme="fortinet"] .toolbar {
-  border-top: 1px solid #e3e3e3;
-  padding-top: 10px;
+  border-top: none;
+  padding-top: 0;
+}
+
+body[data-theme="fortinet"] .view-tabs {
+  border-top: none;
+  padding-top: 0;
+}
+
+body[data-theme="fortinet"] .client-layout {
+  gap: 0;
 }
 
 body[data-theme="fortinet"] .request-editor,
@@ -893,6 +996,103 @@ body[data-theme="fortinet"] textarea {
   display: grid;
   grid-template-columns: 0.92fr 1.18fr 1.2fr;
   gap: 14px;
+}
+
+.client-layout {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 14px;
+}
+
+.client-controls {
+  padding: 10px 12px;
+}
+
+.client-toolbar-main {
+  width: 100%;
+}
+
+.server-layout {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 14px;
+}
+
+.server-top-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(340px, 1fr) minmax(360px, 1.05fr);
+  gap: 14px;
+}
+
+.server-form-grid,
+.server-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.server-status-grid .message-box {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.server-logs-column {
+  min-height: 0;
+}
+
+.theme-layout {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.theme-selector-column {
+  width: min(520px, 100%);
+  min-height: 0;
+}
+
+.theme-action-button.active {
+  background: var(--button-hover-bg);
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 700;
+}
+
+body[data-theme="neo-brutalism"] .theme-action-button.active {
+  background: #ffffff;
+  color: #111111;
+  border-color: #111111;
+  box-shadow: 3px 3px 0 #111111;
+}
+
+body[data-theme="glassmorphism"] .theme-action-button.active {
+  background: rgba(255, 138, 138, 0.92);
+  color: #2e1116;
+  border-color: rgba(255, 95, 109, 0.9);
+}
+
+body[data-theme="bootstrap-light"] .theme-action-button.active {
+  background: #0d6efd;
+  color: #ffffff;
+  border-color: #0b5ed7;
+}
+
+body[data-theme="glassbox-dark"] .theme-action-button.active {
+  background: #4a9eff;
+  color: #f4f8ff;
+  border-color: #2c7fe0;
+}
+
+body[data-theme="fortinet"] .theme-action-button.active {
+  background: #ffffff;
+  color: #dc291e;
+  border-color: #d8d8d8;
+  box-shadow: none;
 }
 
 .column {
@@ -1059,7 +1259,7 @@ body[data-theme="glassbox-dark"] .meta-value {
 
 @media (max-width: 1360px) {
   .toolbar-main {
-    grid-template-columns: 160px minmax(220px, 320px) max-content max-content;
+    grid-template-columns: 160px 150px minmax(220px, 320px) max-content max-content;
   }
 }
 
@@ -1069,12 +1269,20 @@ body[data-theme="glassbox-dark"] .meta-value {
   }
 
   .topbar,
-  .workspace-grid {
+  .workspace-grid,
+  .client-layout,
+  .theme-layout {
     gap: 8px;
   }
 
   .title-row {
     flex-wrap: wrap;
+  }
+
+  .title-nav-group {
+    width: 100%;
+    grid-template-columns: 1fr;
+    row-gap: 10px;
   }
 
   .status-meta-group {
@@ -1088,11 +1296,18 @@ body[data-theme="glassbox-dark"] .meta-value {
     align-items: stretch;
   }
 
+  .view-tabs {
+    flex-wrap: wrap;
+  }
+
   .toolbar-main {
     grid-template-columns: 1fr 1fr;
   }
 
-  .theme-field {
-    flex: none;
+  .server-top-grid,
+  .server-form-grid,
+  .server-status-grid,
+  .theme-layout {
+    grid-template-columns: 1fr;
   }
 }

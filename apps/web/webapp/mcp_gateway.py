@@ -11,6 +11,7 @@ import httpx
 
 
 DEFAULT_PROTOCOL_VERSION = "2025-11-25"
+SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]
 DEFAULT_HEADERS = {"Authorization": "Bearer token"}
 MCP_SESSION_ID_HEADER = "mcp-session-id"
 SSE_ACCEPT_HEADER = "text/event-stream"

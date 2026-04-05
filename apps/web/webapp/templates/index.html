@@ -11,10 +11,17 @@
   <div class="app-shell">
     <header class="topbar panel">
       <div class="title-row">
-        <h1 class="app-title">
-          <img class="app-title-logo" src="{{ url_for('static', path='/mcp-logo.svg') }}" alt="MCP logo">
-          <span>MCP Demo Tool</span>
-        </h1>
+        <div class="title-nav-group">
+          <h1 class="app-title">
+            <img class="app-title-logo" src="{{ url_for('static', path='/mcp-logo.svg') }}" alt="MCP logo">
+            <span>MCP Demo Tool</span>
+          </h1>
+          <nav class="view-tabs" aria-label="Application Views">
+            <button id="client-tab" class="tab-button active" type="button">Client</button>
+            <button id="server-tab" class="tab-button" type="button">Server</button>
+            <button id="theme-tab" class="tab-button" type="button">Theme</button>
+          </nav>
+        </div>
         <div class="status-meta-group">
           <div id="protocol-version-display" class="message-box meta-box protocol-box">
             <span class="meta-label">MCP Protocol Version:</span>
@@ -27,13 +34,25 @@
           <div id="connection-state" class="status-badge disconnected">Disconnected</div>
         </div>
       </div>
-      <div class="toolbar">
-        <div class="toolbar-main">
+    </header>
+
+    <main id="client-view" class="client-layout">
+      <section class="panel client-controls">
+        <div class="toolbar">
+          <div class="toolbar-main client-toolbar-main">
           <label class="compact-field">
             <span>Transport</span>
             <select id="transport-mode">
               <option value="streamable-http">Streamable HTTP</option>
               <option value="sse">SSE</option>
+            </select>
+          </label>
+          <label class="compact-field protocol-field">
+            <span>Protocol Version</span>
+            <select id="protocol-version">
+              {% for version in protocol_version_options %}
+              <option value="{{ version }}">{{ version }}</option>
+              {% endfor %}
             </select>
           </label>
           <label class="compact-field url-field">
@@ -43,27 +62,19 @@
           <button id="connect-button" class="tool-button primary-button" type="button">Connect</button>
           <button id="disconnect-button" class="tool-button" type="button">Disconnect</button>
         </div>
-        <label class="compact-field theme-field">
-          <span>Theme</span>
-          <select id="theme-mode">
-            {% for theme in theme_options %}
-            <option value="{{ theme.id }}">{{ theme.label }}</option>
-            {% endfor %}
-          </select>
-        </label>
-      </div>
-    </header>
+        </div>
+      </section>
 
-    <main class="workspace-grid">
-      <section class="panel column actions-column">
+      <section class="workspace-grid">
+        <section class="panel column actions-column">
         <div class="column-header">
           <h2>MCP Actions</h2>
           <p>Single click loads a request into the editor.</p>
         </div>
         <div id="action-groups" class="action-groups"></div>
-      </section>
+        </section>
 
-      <section class="panel column editor-column">
+        <section class="panel column editor-column">
         <div class="column-header">
           <h2>Request JSON</h2>
           <p id="template-description">Edit the request or send it directly.</p>
@@ -75,9 +86,9 @@
           <button id="format-button" class="tool-button" type="button">Format JSON</button>
           <button id="send-button" class="tool-button primary-button" type="button">Send Request</button>
         </div>
-      </section>
+        </section>
 
-      <section class="panel column response-column">
+        <section class="panel column response-column">
         <div class="column-header">
           <h2>Response Viewer</h2>
           <p>Pretty-printed output from the MCP endpoint.</p>
@@ -87,6 +98,89 @@
 }</pre>
         <div id="response-error" class="message-box error-box hidden"></div>
       </section>
+      </section>
+    </main>
+
+    <main id="server-view" class="server-layout hidden">
+      <section class="server-top-grid">
+        <section class="panel column server-config-column">
+          <div class="column-header">
+            <h2>Server Control</h2>
+            <p>Manage the local MCP lab server runtime.</p>
+          </div>
+          <div class="server-form-grid">
+            <label class="compact-field">
+              <span>Transport</span>
+              <select id="server-transport-mode">
+                {% for transport in server_transport_options %}
+                <option value="{{ transport }}">{{ transport }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="compact-field">
+              <span>Protocol Version</span>
+              <select id="server-protocol-version">
+                {% for version in protocol_version_options %}
+                <option value="{{ version }}">{{ version }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="compact-field">
+              <span>Host</span>
+              <input id="server-host" type="text" value="{{ default_server_host }}">
+            </label>
+            <label class="compact-field">
+              <span>Port</span>
+              <input id="server-port" type="number" min="1" max="65535" value="{{ default_server_port }}">
+            </label>
+          </div>
+          <div class="button-row">
+            <button id="server-start-button" class="tool-button primary-button" type="button">Start Server</button>
+            <button id="server-stop-button" class="tool-button" type="button">Stop Server</button>
+            <button id="server-restart-button" class="tool-button" type="button">Restart Server</button>
+            <button id="server-refresh-button" class="tool-button" type="button">Refresh Status</button>
+            <button id="server-reset-logs-button" class="tool-button" type="button">Reset Logs</button>
+          </div>
+        </section>
+
+        <section class="panel column server-status-column">
+          <div class="column-header">
+            <h2>Server Status</h2>
+            <p>Current runtime state of the managed MCP server.</p>
+          </div>
+          <div class="server-status-grid">
+            <div class="message-box meta-box protocol-box"><span class="meta-label">State:</span><span id="server-state" class="meta-value">stopped</span></div>
+            <div class="message-box meta-box protocol-box"><span class="meta-label">Transport:</span><span id="server-status-transport" class="meta-value">streamable-http</span></div>
+            <div class="message-box meta-box protocol-box"><span class="meta-label">Version:</span><span id="server-status-version" class="meta-value">2025-11-25</span></div>
+            <div class="message-box meta-box protocol-box"><span class="meta-label">PID:</span><span id="server-status-pid" class="meta-value">n/a</span></div>
+            <div class="message-box meta-box protocol-box"><span class="meta-label">Uptime:</span><span id="server-status-uptime" class="meta-value">n/a</span></div>
+            <div class="message-box meta-box protocol-box"><span class="meta-label">Endpoint:</span><span id="server-status-endpoint" class="meta-value">n/a</span></div>
+            <div class="message-box meta-box protocol-box"><span class="meta-label">Last Error:</span><span id="server-status-error" class="meta-value">none</span></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel column server-logs-column">
+        <div class="column-header">
+          <h2>MCP SERVER LOGS</h2>
+        </div>
+        <pre id="server-logs-viewer" class="code-panel response-viewer">No logs yet.</pre>
+      </section>
+    </main>
+
+    <main id="theme-view" class="theme-layout hidden">
+      <section class="panel column theme-selector-column">
+        <div class="column-header">
+          <h2>Theme Selection</h2>
+          <p>Pick the interface theme for the MCP Demo Tool.</p>
+        </div>
+        <div class="action-groups">
+          <details class="action-section" open>
+            <summary class="action-summary">Available Themes</summary>
+            <div id="theme-options-list" class="action-list"></div>
+          </details>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -94,7 +188,11 @@
     window.APP_BOOTSTRAP = {
       templates: {{ templates_json | safe }},
       defaultTheme: {{ default_theme | tojson }},
-      themeOptions: {{ theme_options | tojson }}
+      themeOptions: {{ theme_options | tojson }},
+      defaultProtocolVersion: {{ default_protocol_version | tojson }},
+      protocolVersionOptions: {{ protocol_version_options | tojson }},
+      defaultServerHost: {{ default_server_host | tojson }},
+      defaultServerPort: {{ default_server_port | tojson }}
     };
   </script>
   <script src="{{ url_for('static', path='/app.js') }}"></script>
