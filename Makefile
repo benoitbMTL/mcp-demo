@@ -4,6 +4,7 @@ DOCKER ?= docker
 TARGET_URL ?= http://mcp-xperts.labsec.ca/mcp
 TRANSPORT ?= streamable-http
 PROTOCOL_VERSION ?= 2025-11-25
+THEME ?= neo-brutalism
 
 IMAGE_NAME ?= mcp-demo-tool
 CONTAINER_NAME ?= mcp-demo-tool
@@ -14,7 +15,7 @@ run-server:
 	$(PYTHON) server/server.py --transport $(TRANSPORT) --host 0.0.0.0 --port 7000 --protocol-version $(PROTOCOL_VERSION)
 
 run-web:
-	$(PYTHON) apps/web/run_web_ui.py
+	$(PYTHON) apps/web/run_web_ui.py --theme $(THEME)
 
 run-cli:
 	$(PYTHON) apps/cli/client.py --target-url $(TARGET_URL) --transport $(TRANSPORT) --protocol-version $(PROTOCOL_VERSION)
@@ -30,4 +31,5 @@ docker-run:
 		-p 7001:7001 \
 		-e MCP_TRANSPORT=$(TRANSPORT) \
 		-e MCP_PROTOCOL_VERSION=$(PROTOCOL_VERSION) \
+		-e WEB_UI_THEME=$(THEME) \
 		$(IMAGE_NAME)

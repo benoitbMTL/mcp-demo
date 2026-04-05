@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED=1 \
     MCP_PORT=7000 \
     MCP_TRANSPORT=streamable-http \
     MCP_PROTOCOL_VERSION=2025-11-25 \
+    WEB_UI_THEME=neo-brutalism \
     WEB_UI_HOST=0.0.0.0 \
     WEB_UI_PORT=7001 \
     WEB_UI_RELOAD=false

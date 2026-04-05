@@ -7,7 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', path='/mcp-logo.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
 </head>
-<body>
+<body data-theme="{{ default_theme }}">
   <div class="app-shell">
     <header class="topbar panel">
       <div class="title-row">
@@ -17,28 +17,40 @@
         </h1>
         <div class="status-meta-group">
           <div id="protocol-version-display" class="message-box meta-box protocol-box">
-            MCP Protocol Version: unknown
+            <span class="meta-label">MCP Protocol Version:</span>
+            <span class="meta-value">unknown</span>
           </div>
           <div id="session-token-display" class="message-box meta-box protocol-box">
-            MCP Session Token: unknown
+            <span class="meta-label">MCP Session Token:</span>
+            <span class="meta-value">unknown</span>
           </div>
           <div id="connection-state" class="status-badge disconnected">Disconnected</div>
         </div>
       </div>
       <div class="toolbar">
-        <label class="compact-field">
-          <span>Transport</span>
-          <select id="transport-mode">
-            <option value="streamable-http">Streamable HTTP</option>
-            <option value="sse">SSE</option>
+        <div class="toolbar-main">
+          <label class="compact-field">
+            <span>Transport</span>
+            <select id="transport-mode">
+              <option value="streamable-http">Streamable HTTP</option>
+              <option value="sse">SSE</option>
+            </select>
+          </label>
+          <label class="compact-field url-field">
+            <span>Target URL</span>
+            <input id="target-url" type="url" placeholder="http://mcp-xperts.labsec.ca/mcp" value="http://mcp-xperts.labsec.ca/mcp">
+          </label>
+          <button id="connect-button" class="tool-button primary-button" type="button">Connect</button>
+          <button id="disconnect-button" class="tool-button" type="button">Disconnect</button>
+        </div>
+        <label class="compact-field theme-field">
+          <span>Theme</span>
+          <select id="theme-mode">
+            {% for theme in theme_options %}
+            <option value="{{ theme.id }}">{{ theme.label }}</option>
+            {% endfor %}
           </select>
         </label>
-        <label class="compact-field url-field">
-          <span>Target URL</span>
-          <input id="target-url" type="url" placeholder="http://mcp-xperts.labsec.ca/mcp" value="http://mcp-xperts.labsec.ca/mcp">
-        </label>
-        <button id="connect-button" class="tool-button primary-button" type="button">Connect</button>
-        <button id="disconnect-button" class="tool-button" type="button">Disconnect</button>
       </div>
     </header>
 
@@ -80,7 +92,9 @@
 
   <script>
     window.APP_BOOTSTRAP = {
-      templates: {{ templates_json | safe }}
+      templates: {{ templates_json | safe }},
+      defaultTheme: {{ default_theme | tojson }},
+      themeOptions: {{ theme_options | tojson }}
     };
   </script>
   <script src="{{ url_for('static', path='/app.js') }}"></script>

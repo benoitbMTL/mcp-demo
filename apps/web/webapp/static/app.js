@@ -1,10 +1,14 @@
 (function () {
   const templates = window.APP_BOOTSTRAP.templates;
+  const themeOptions = window.APP_BOOTSTRAP.themeOptions || [];
   const CLIENT_SESSION_STORAGE_KEY = "mcp-demo-client-session-id";
+  const THEME_STORAGE_KEY = "mcp-demo-theme";
+  const DEFAULT_THEME = window.APP_BOOTSTRAP.defaultTheme || "neo-brutalism";
 
   const elements = {
     targetUrl: document.getElementById("target-url"),
     transportMode: document.getElementById("transport-mode"),
+    themeMode: document.getElementById("theme-mode"),
     connectButton: document.getElementById("connect-button"),
     disconnectButton: document.getElementById("disconnect-button"),
     connectionState: document.getElementById("connection-state"),
@@ -41,6 +45,25 @@
     const created = createClientSessionId();
     window.localStorage.setItem(CLIENT_SESSION_STORAGE_KEY, created);
     return created;
+  }
+
+  function getStoredTheme() {
+    return window.localStorage.getItem(THEME_STORAGE_KEY);
+  }
+
+  function setStoredTheme(theme) {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }
+
+  function isSupportedTheme(theme) {
+    return themeOptions.some((option) => option.id === theme);
+  }
+
+  function applyTheme(theme) {
+    const nextTheme = isSupportedTheme(theme) ? theme : DEFAULT_THEME;
+    document.body.dataset.theme = nextTheme;
+    elements.themeMode.value = nextTheme;
+    return nextTheme;
   }
 
   function getTargetEndpoint() {
@@ -158,11 +181,11 @@
   }
 
   function setProtocolVersion(version) {
-    elements.protocolVersionDisplay.textContent = `MCP Protocol Version: ${version || "unknown"}`;
+    elements.protocolVersionDisplay.querySelector(".meta-value").textContent = version || "unknown";
   }
 
   function setSessionToken(token) {
-    elements.sessionTokenDisplay.textContent = `MCP Session Token: ${token || "unknown"}`;
+    elements.sessionTokenDisplay.querySelector(".meta-value").textContent = token || "unknown";
   }
 
   function applyDisconnectedUi(message) {
@@ -347,6 +370,10 @@
   elements.connectButton.addEventListener("click", connect);
   elements.disconnectButton.addEventListener("click", disconnect);
   elements.sendButton.addEventListener("click", sendRequest);
+  elements.themeMode.addEventListener("change", (event) => {
+    const nextTheme = applyTheme(event.target.value);
+    setStoredTheme(nextTheme);
+  });
   elements.formatButton.addEventListener("click", () => {
     clearRequestError();
     try {
@@ -359,6 +386,7 @@
   });
 
   renderActionGroups();
+  applyTheme(getStoredTheme() || DEFAULT_THEME);
   applyDisconnectedUi("No active MCP session.");
   if (templates.length > 0) {
     populateTemplate(templates[0].id);

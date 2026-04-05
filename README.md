@@ -85,7 +85,7 @@ Server options:
 ## Run The Web UI 🌐
 
 ```bash
-python apps/web/run_web_ui.py
+python apps/web/run_web_ui.py --theme neo-brutalism
 ```
 
 Open:
@@ -93,6 +93,18 @@ Open:
 ```text
 http://127.0.0.1:7001
 ```
+
+Theme options:
+
+- `neo-brutalism` → `Neo Brutalism`
+- `glassmorphism` → `Glassmorphism`
+- `bootstrap-light` → `Bootstrap Light`
+- `glassbox-dark` → `Glassbox Dark`
+- `fortinet` → `Fortinet`
+
+Default theme:
+
+- `neo-brutalism`
 
 ## Run The CLI Client 💻
 

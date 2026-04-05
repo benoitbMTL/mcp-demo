@@ -24,8 +24,16 @@ python server/server.py --transport streamable-http --host 0.0.0.0 --port 7000 -
 ## Start The Web UI 🌐
 
 ```bash
-python apps/web/run_web_ui.py
+python apps/web/run_web_ui.py --theme neo-brutalism
 ```
+
+Supported themes:
+
+- `neo-brutalism` → `Neo Brutalism`
+- `glassmorphism` → `Glassmorphism`
+- `bootstrap-light` → `Bootstrap Light`
+- `glassbox-dark` → `Glassbox Dark`
+- `fortinet` → `Fortinet`
 
 Then open:
 

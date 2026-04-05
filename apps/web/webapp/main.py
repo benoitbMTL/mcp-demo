@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,7 @@ from .mcp_gateway import (
 )
 from .models import ConnectPayload, DisconnectPayload, SendRequestPayload
 from .request_templates import get_default_request, list_templates
+from .themes import DEFAULT_THEME, THEME_OPTIONS, normalize_theme
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -29,6 +31,10 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 ACTIVE_SESSIONS: dict[str, dict[str, Any]] = {}
+
+
+def get_default_theme() -> str:
+    return normalize_theme(os.getenv("WEB_UI_THEME", DEFAULT_THEME))
 
 
 def get_active_session(client_session_id: str) -> dict[str, Any] | None:
@@ -52,6 +58,8 @@ async def index(request: Request) -> HTMLResponse:
             "request": request,
             "templates_json": json.dumps(list_templates(), ensure_ascii=False),
             "default_request_json": json.dumps(get_default_request(), indent=2, ensure_ascii=False),
+            "default_theme": get_default_theme(),
+            "theme_options": THEME_OPTIONS,
         },
     )
 
