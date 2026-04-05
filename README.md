@@ -45,6 +45,7 @@ mcp-demo/
 ## Install 🛠️
 
 ```bash
+git clone https://github.com/benoitbMTL/mcp-demo.git
 cd mcp-demo
 python3 -m venv .venv
 source .venv/bin/activate
