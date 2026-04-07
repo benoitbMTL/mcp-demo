@@ -8,7 +8,8 @@ This project includes two client entrypoints:
 ## Install 🛠️
 
 ```bash
-cd /path/to/mcp-demo
+git clone https://github.com/benoitbMTL/mcp-demo.git
+cd mcp-demo
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
