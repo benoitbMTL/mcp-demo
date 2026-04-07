@@ -5,6 +5,7 @@
   const CLIENT_SESSION_STORAGE_KEY = "mcp-demo-client-session-id";
   const THEME_STORAGE_KEY = "mcp-demo-theme";
   const VIEW_STORAGE_KEY = "mcp-demo-active-view";
+  const WELCOME_MODAL_DISMISS_STORAGE_KEY = "mcp-demo-hide-welcome-modal";
   const DEFAULT_THEME = window.APP_BOOTSTRAP.defaultTheme || "neo-brutalism";
   const DEFAULT_PROTOCOL_VERSION =
     window.APP_BOOTSTRAP.defaultProtocolVersion || "2025-11-25";
@@ -51,6 +52,9 @@
     serverStatusError: document.getElementById("server-status-error"),
     serverLogsViewer: document.getElementById("server-logs-viewer"),
     themeOptionsList: document.getElementById("theme-options-list"),
+    welcomeModal: document.getElementById("welcome-modal"),
+    welcomeDismissToggle: document.getElementById("welcome-dismiss-toggle"),
+    welcomeModalOk: document.getElementById("welcome-modal-ok"),
   };
 
   let isConnected = false;
@@ -94,6 +98,17 @@
     window.localStorage.setItem(VIEW_STORAGE_KEY, view);
   }
 
+  function shouldPresentWelcomeModal() {
+    return window.localStorage.getItem(WELCOME_MODAL_DISMISS_STORAGE_KEY) !== "true";
+  }
+
+  function setWelcomeModalDismissed(shouldDismiss) {
+    window.localStorage.setItem(
+      WELCOME_MODAL_DISMISS_STORAGE_KEY,
+      shouldDismiss ? "true" : "false"
+    );
+  }
+
   function isSupportedTheme(theme) {
     return themeOptions.some((option) => option.id === theme);
   }
@@ -102,7 +117,16 @@
     const nextTheme = isSupportedTheme(theme) ? theme : DEFAULT_THEME;
     document.body.dataset.theme = nextTheme;
     syncThemeButtons(nextTheme);
+    syncFortinetEmptyControls();
     return nextTheme;
+  }
+
+  function syncFortinetEmptyControls() {
+    document.querySelectorAll("input, select, textarea").forEach((control) => {
+      const value =
+        typeof control.value === "string" ? control.value.trim() : String(control.value || "");
+      control.classList.toggle("fortinet-empty-control", value === "");
+    });
   }
 
   function getTargetEndpoint() {
@@ -235,6 +259,21 @@
     });
   }
 
+  function showWelcomeModal() {
+    if (!elements.welcomeModal) {
+      return;
+    }
+    elements.welcomeDismissToggle.checked = !shouldPresentWelcomeModal();
+    elements.welcomeModal.classList.remove("hidden");
+  }
+
+  function hideWelcomeModal() {
+    if (!elements.welcomeModal) {
+      return;
+    }
+    elements.welcomeModal.classList.add("hidden");
+  }
+
   function groupTemplates(items) {
     const groups = new Map();
     items.forEach((item) => {
@@ -343,6 +382,9 @@
   }
 
   function setProtocolVersion(version) {
+    if (!elements.protocolVersionDisplay) {
+      return;
+    }
     elements.protocolVersionDisplay.querySelector(".meta-value").textContent = version || "unknown";
   }
 
@@ -661,15 +703,29 @@
   elements.serverRestartButton.addEventListener("click", restartServer);
   elements.serverRefreshButton.addEventListener("click", refreshServerStatus);
   elements.serverResetLogsButton.addEventListener("click", resetServerLogs);
+  elements.welcomeDismissToggle.addEventListener("change", (event) => {
+    setWelcomeModalDismissed(event.target.checked);
+  });
+  elements.welcomeModalOk.addEventListener("click", () => {
+    setWelcomeModalDismissed(elements.welcomeDismissToggle.checked);
+    hideWelcomeModal();
+  });
   elements.formatButton.addEventListener("click", () => {
     clearRequestError();
     try {
       const parsed = JSON.parse(elements.requestEditor.value);
       elements.requestEditor.value = formatJson(parsed);
+      syncFortinetEmptyControls();
       updateRequestMeta("JSON formatted successfully.");
     } catch (error) {
       showRequestError(`Invalid JSON: ${error.message}`);
     }
+  });
+
+  document.querySelectorAll("input, select, textarea").forEach((control) => {
+    const syncControlState = () => syncFortinetEmptyControls();
+    control.addEventListener("input", syncControlState);
+    control.addEventListener("change", syncControlState);
   });
 
   renderActionGroups();
@@ -680,7 +736,11 @@
   }
   setActiveView("server");
   applyTheme(getStoredTheme() || DEFAULT_THEME);
+  syncFortinetEmptyControls();
   applyDisconnectedUi("No active MCP session.");
+  if (shouldPresentWelcomeModal()) {
+    showWelcomeModal();
+  }
   refreshServerStatus();
   if (templates.length > 0) {
     populateTemplate(templates[0].id);

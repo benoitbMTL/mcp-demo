@@ -22,17 +22,6 @@
             <button id="theme-tab" class="tab-button" type="button">Theme</button>
           </nav>
         </div>
-        <div class="status-meta-group">
-          <div id="protocol-version-display" class="message-box meta-box protocol-box">
-            <span class="meta-label">MCP Protocol Version:</span>
-            <span class="meta-value">unknown</span>
-          </div>
-          <div id="session-token-display" class="message-box meta-box protocol-box">
-            <span class="meta-label">MCP Session Token:</span>
-            <span class="meta-value">unknown</span>
-          </div>
-          <div id="connection-state" class="status-badge disconnected">Disconnected</div>
-        </div>
       </div>
     </header>
 
@@ -62,6 +51,13 @@
           <button id="connect-button" class="tool-button primary-button" type="button">Connect</button>
           <button id="disconnect-button" class="tool-button" type="button">Disconnect</button>
         </div>
+          <div class="status-meta-group client-status-meta-group">
+            <div id="session-token-display" class="message-box meta-box protocol-box">
+              <span class="meta-label">MCP Session Token:</span>
+              <span class="meta-value">unknown</span>
+            </div>
+            <div id="connection-state" class="status-badge disconnected">Disconnected</div>
+          </div>
         </div>
       </section>
 
@@ -162,7 +158,7 @@
 
       <section class="panel column server-logs-column">
         <div class="column-header">
-          <h2>MCP SERVER LOGS</h2>
+          <h2>MCP Server Logs</h2>
         </div>
         <pre id="server-logs-viewer" class="code-panel response-viewer">No logs yet.</pre>
       </section>
@@ -182,6 +178,44 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div id="welcome-modal" class="welcome-modal hidden" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
+    <div class="welcome-modal-backdrop"></div>
+    <section class="welcome-modal-card panel">
+      <div class="welcome-modal-header">
+        <img class="welcome-modal-logo" src="{{ url_for('static', path='/mcp-logo.svg') }}" alt="MCP logo">
+        <div class="column-header">
+          <h2 id="welcome-modal-title">Welcome to the MCP demo tool</h2>
+          <p>Here is the simplest way to get started.</p>
+        </div>
+      </div>
+      <ul class="welcome-modal-list">
+        <li>
+          <div class="welcome-step-title">1️⃣ Start in the Server tab</div>
+          <div class="welcome-step-text">Choose a transport and a protocol version, then launch the MCP server.</div>
+        </li>
+        <li>
+          <div class="welcome-step-title">2️⃣ Switch to the Client tab</div>
+          <div class="welcome-step-text">Connect the MCP client with the same transport and same protocol version.</div>
+        </li>
+        <li>
+          <div class="welcome-step-title">3️⃣ Send your first request</div>
+          <div class="welcome-step-text">Choose an action, review the JSON request, and send it.</div>
+        </li>
+        <li>
+          <div class="welcome-step-title">4️⃣ Explore the Theme tab</div>
+          <div class="welcome-step-text">Change the interface style and choose the theme you prefer.</div>
+        </li>
+      </ul>
+      <div class="welcome-modal-footer">
+        <label class="welcome-checkbox" for="welcome-dismiss-toggle">
+          <input id="welcome-dismiss-toggle" type="checkbox">
+          <span>Don't show this again</span>
+        </label>
+        <button id="welcome-modal-ok" class="tool-button primary-button" type="button">OK, I got it</button>
+      </div>
+    </section>
   </div>
 
   <script>
