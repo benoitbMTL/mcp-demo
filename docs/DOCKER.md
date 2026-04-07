@@ -14,6 +14,19 @@ cd /path/to/mcp-demo
 docker build -f docker/Dockerfile -t mcp-demo-tool .
 ```
 
+## Run Directly From Docker Hub (No Git Clone) 🚀
+
+```bash
+docker pull benoitbmtl/mcp-demo:latest
+
+docker run -d \
+  --name mcp-demo \
+  --restart unless-stopped \
+  -p 7000:7000 \
+  -p 7001:7001 \
+  benoitbmtl/mcp-demo:latest
+```
+
 ## Run On Ubuntu ▶️
 
 ```bash
