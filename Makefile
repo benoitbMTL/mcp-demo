@@ -29,7 +29,5 @@ docker-run:
 		--restart unless-stopped \
 		-p 7000:7000 \
 		-p 7001:7001 \
-		-e MCP_TRANSPORT=$(TRANSPORT) \
-		-e MCP_PROTOCOL_VERSION=$(PROTOCOL_VERSION) \
 		-e WEB_UI_THEME=$(THEME) \
 		$(IMAGE_NAME)

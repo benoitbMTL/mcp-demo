@@ -5,7 +5,7 @@ import contextlib
 import json
 import re
 from typing import Any
-from urllib.parse import urljoin, urlparse
+from urllib.parse import parse_qs, urljoin, urlparse
 
 import httpx
 
@@ -91,6 +91,16 @@ def make_initialized_notification() -> dict[str, Any]:
 def extract_request_id(payload: Any) -> str | int | None:
     if isinstance(payload, dict):
         return payload.get("id")
+    return None
+
+
+def extract_sse_session_id(message_url: str) -> str | None:
+    parsed_url = urlparse(message_url)
+    query_params = parse_qs(parsed_url.query)
+    for key in ("session_id", "sessionId", "mcp_session_id", "mcp-session-id", "token"):
+        values = query_params.get(key)
+        if values:
+            return values[0]
     return None
 
 
@@ -307,6 +317,7 @@ async def send_sse_transaction(endpoint_url: str, payload: Any, protocol_version
             try:
                 endpoint_event = await wait_for_sse_event(queue, event_name="endpoint")
                 message_url = urljoin(str(stream_response.url), endpoint_event["data"])
+                session_id = extract_sse_session_id(message_url)
                 bootstrap_info: dict[str, Any] | None = None
                 if needs_bootstrap:
                     initialize_payload = make_initialize_request(protocol_version)
@@ -322,6 +333,7 @@ async def send_sse_transaction(endpoint_url: str, payload: Any, protocol_version
                         },
                     )
                     initialize_http = parse_http_response(initialize_response)
+                    session_id = session_id or initialize_http.get("mcp_session_id")
                     initialize_event = await wait_for_sse_event(
                         queue,
                         request_id=initialize_payload["id"],
@@ -359,6 +371,7 @@ async def send_sse_transaction(endpoint_url: str, payload: Any, protocol_version
                     },
                 )
                 request_http = parse_http_response(request_response)
+                session_id = session_id or request_http.get("mcp_session_id")
 
                 matched_event: dict[str, Any] | None = None
                 if request_id is not None:
@@ -370,6 +383,7 @@ async def send_sse_transaction(endpoint_url: str, payload: Any, protocol_version
                         "endpoint_url": endpoint_url,
                         "message_url": message_url,
                         "protocol_version": protocol_version,
+                        "mcp_session_id": session_id,
                     },
                     "bootstrap": bootstrap_info,
                     "response": {

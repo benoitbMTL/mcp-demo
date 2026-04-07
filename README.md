@@ -7,7 +7,7 @@ This repository contains a complete MCP security demo with:
 - a CLI client
 - Claude Desktop integration assets
 - shell and PowerShell test scripts
-- Docker packaging for the server + Web UI
+- Docker packaging for the Web UI + managed MCP server control
 
 ![MCP Demo Tool interface](docs/assets/mcp-demo-tool-ui.png)
 

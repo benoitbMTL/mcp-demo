@@ -400,12 +400,35 @@
     syncActionButtons();
   }
 
+  function getSessionTokenFromUrl(urlValue) {
+    if (!urlValue) {
+      return null;
+    }
+    try {
+      const parsed = new URL(urlValue, window.location.origin);
+      return (
+        parsed.searchParams.get("session_id") ||
+        parsed.searchParams.get("sessionId") ||
+        parsed.searchParams.get("mcp_session_id") ||
+        parsed.searchParams.get("mcp-session-id") ||
+        parsed.searchParams.get("token") ||
+        null
+      );
+    } catch {
+      return null;
+    }
+  }
+
   function getConnectionDetails(result) {
     const connection = result?.connection || result?.probe?.connection || {};
     const response = result?.response || result?.probe?.response || {};
     const requestHttp = response?.request_http || {};
     const bootstrapInitialize =
-      result?.bootstrap?.initialize || result?.probe?.bootstrap?.initialize || {};
+      result?.bootstrap?.initialize ||
+      result?.probe?.bootstrap?.initialize ||
+      result?.bootstrap?.initialize_http ||
+      result?.probe?.bootstrap?.initialize_http ||
+      {};
 
     return {
       protocolVersion:
@@ -418,6 +441,7 @@
         response.mcp_session_id ||
         requestHttp.mcp_session_id ||
         bootstrapInitialize.mcp_session_id ||
+        getSessionTokenFromUrl(connection.message_url) ||
         null,
     };
   }
@@ -611,17 +635,19 @@
     elements.serverStatusEndpoint.textContent = runtime.endpoint_url || "n/a";
     elements.serverStatusError.textContent = runtime.last_error || "none";
 
-    if (runtime.transport) {
-      elements.serverTransportMode.value = runtime.transport;
-    }
-    if (runtime.protocol_version) {
-      elements.serverProtocolVersion.value = runtime.protocol_version;
-    }
-    if (runtime.host) {
-      elements.serverHost.value = runtime.host;
-    }
-    if (runtime.port) {
-      elements.serverPort.value = runtime.port;
+    if (running) {
+      if (runtime.transport) {
+        elements.serverTransportMode.value = runtime.transport;
+      }
+      if (runtime.protocol_version) {
+        elements.serverProtocolVersion.value = runtime.protocol_version;
+      }
+      if (runtime.host) {
+        elements.serverHost.value = runtime.host;
+      }
+      if (runtime.port) {
+        elements.serverPort.value = runtime.port;
+      }
     }
 
     elements.serverStartButton.disabled = running;

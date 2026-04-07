@@ -2,10 +2,6 @@ FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
-    MCP_HOST=0.0.0.0 \
-    MCP_PORT=7000 \
-    MCP_TRANSPORT=streamable-http \
-    MCP_PROTOCOL_VERSION=2025-11-25 \
     WEB_UI_THEME=neo-brutalism \
     WEB_UI_HOST=0.0.0.0 \
     WEB_UI_PORT=7001 \

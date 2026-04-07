@@ -341,6 +341,45 @@ body[data-theme="neo-brutalism"] .tab-button.active {
   flex-wrap: nowrap;
 }
 
+.topbar-links {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.topbar-external-link {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+
+.topbar-external-logo {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.topbar-docker-logo {
+  width: 24px;
+  height: auto;
+}
+
+body[data-theme="fortinet"] .topbar-external-link {
+  color: #ffffff;
+}
+
+body[data-theme="glassmorphism"] .topbar-external-link,
+body[data-theme="glassbox-dark"] .topbar-external-link {
+  color: #ffffff;
+}
+
 .status-meta-group {
   min-width: 0;
   display: flex;

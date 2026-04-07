@@ -1,9 +1,11 @@
 # Docker Deployment 🐳
 
-The Docker image runs both services in one container:
+The Docker image starts only the Web UI:
 
-- `server/server.py` on port `7000`
 - `apps/web/run_web_ui.py` on port `7001`
+
+The MCP server is managed from the Web UI (Server tab) and is **not** started automatically.
+Port `7000` is still published so the managed server is reachable when started from the UI.
 
 ## Build On Ubuntu 🛠️
 
@@ -20,7 +22,6 @@ docker run -d \
   --restart unless-stopped \
   -p 7000:7000 \
   -p 7001:7001 \
-  -e MCP_PROTOCOL_VERSION=2025-11-25 \
   mcp-demo-tool
 ```
 
@@ -41,8 +42,9 @@ docker run -d \
   --restart unless-stopped \
   -p 7000:7000 \
   -p 7001:7001 \
-  -e MCP_TRANSPORT=streamable-http \
-  -e MCP_PROTOCOL_VERSION=2025-11-25 \
+  -e WEB_UI_THEME=fortinet \
+  -e WEB_UI_HOST=0.0.0.0 \
+  -e WEB_UI_PORT=7001 \
   -e MCP_TOOL_DESCRIPTION_VARIANT=malicious_cryptojacking \
   -e MCP_RESOURCE_VARIANT=bias_master_slave \
   -e MCP_PROMPT_VARIANT=social_urgent \
